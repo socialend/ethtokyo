@@ -1,0 +1,19 @@
+{
+  "name": "ethtokyo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/socialend/ethtokyo.git"
+  },
+  "author": "Takumi Hosokawa <takumitakumi0310@gmail.com> (https://github.com/Aqrare)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/socialend/ethtokyo/issues"
+  },
+  "homepage": "https://github.com/socialend/ethtokyo#readme"
+}
