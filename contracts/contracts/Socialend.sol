@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
+import { ByteHasher } from './helpers/ByteHasher.sol';
+import { IWorldID } from './interfaces/IWorldID.sol';
 // import "contracts/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -8,12 +10,16 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "hardhat/console.sol";
 
 contract Socialend {
+    using ByteHasher for bytes;
     address USDC;
     uint256 interestRate;
-    constructor(address _USDC, uint256 _interestRate) {
+    constructor(address _USDC, uint256 _interestRate, IWorldID _worldId) {
         USDC = _USDC;
         interestRate = _interestRate;  //20%
+        worldId = _worldId;
     }
+
+    error InvalidNullifier();
 
     struct LoanRequest {
         uint256 id;
@@ -30,6 +36,14 @@ contract Socialend {
     }
     uint256 private requestIdCounter;
 
+    /// @dev The World ID instance that will be used for verifying proofs
+    IWorldID internal immutable worldId;
+
+    /// @dev The World ID group ID (always 1)
+    uint256 internal immutable groupId = 1;
+
+/// @dev Whether a nullifier hash has been used already. Used to guarantee an action is only performed once by a single person
+    mapping(uint256 => bool) internal nullifierHashes;
     mapping(address => uint256) public outstandingDebts;
     mapping(address => bool) public blacklist;
     mapping(uint256 => LoanRequest) public loanRequests;
@@ -50,19 +64,38 @@ contract Socialend {
         address borrower
     );
 
+
+
+    /// @param root The root of the Merkle tree (returned by the JS widget).
+    /// @param nullifierHash The nullifier hash for this proof, preventing double signaling (returned by the JS widget).
+    /// @param proof The zero-knowledge proof that demostrates the claimer is registered with World ID (returned by the JS widget).
     function createLoanRequest(
         // uint256 worldId,
         uint256 amount,
         uint256 collateral,
         uint256 interest,
-        uint256 dueDate
+        uint256 dueDate,
+        uint256 root,
+        uint256 nullifierHash,
+        uint256[8] memory proof,
+        string memory app_id
     ) public {
         require(blacklist[msg.sender] == false, "You are in blacklist");
 
         // uint256 collateralRatio = amount / collateral;
+        if (nullifierHashes[nullifierHash]) revert InvalidNullifier();
+        worldId.verifyProof(
+            root,
+            groupId,
+            abi.encodePacked(msg.sender).hashToField(),
+            nullifierHash,
+            abi.encodePacked(app_id).hashToField(),
+            proof
+        );
 
         //TODO : Get Lens followers and compute social score
         //TODO : Check social score is met the rewquirement
+        
 
         requestIdCounter++;
 

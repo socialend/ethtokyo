@@ -19,6 +19,7 @@ const Home: NextPage = () => {
     console.log(result);
   };
   const app_id = process.env.NEXT_PUBLIC_APP_ID || "";
+  const app_id_dev = process.env.NEXT_PUBLIC_APP_ID_DEV || "";
   return (
     <div className={styles.container}>
       <Head>
@@ -40,7 +41,7 @@ const Home: NextPage = () => {
           signal="my_signal"
           onSuccess={onSuccess}
           handleVerify={handleProof}
-          app_id={app_id}
+          app_id={app_id_dev}
           theme="light"
           // walletConnectProjectId="get_this_from_walletconnect_portal"
         >
