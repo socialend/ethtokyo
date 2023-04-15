@@ -1,0 +1,8 @@
+{
+  "extends": "solhint:recommended",
+  "rules": {
+    "no-inline-assembly": "off",
+    "reason-string": "error",
+    "max-states-count": ["warning", 30]
+  }
+}
