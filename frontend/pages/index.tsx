@@ -3,13 +3,17 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
 
-import { useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
+type Fetch = {
+  id: number,
+  title: string,
+};
 import { IDKitWidget } from "@worldcoin/idkit";
 import type { ISuccessResult } from "@worldcoin/idkit";
 import { BigNumber, ethers } from "ethers";
 
 
-import { LoginButton, WhenLoggedInWithProfile } from '../components';
+import { LoginButton, WhenLoggedInWithProfile, GetLendingData } from '../components';
 
 import { Heading, Box, Button, ButtonGroup, IconButton, Container, Text, Link, Flex, Spacer,Table, TableContainer, TableCaption,Thead,Tr, Th, Td, Tbody, HStack, Image, useBreakpointValue, Center } from '@chakra-ui/react'
 import NextLink from "next/link";
@@ -49,6 +53,7 @@ const Home: NextPage = () => {
   const app_id = process.env.NEXT_PUBLIC_APP_ID || "";
   const app_id_dev = process.env.NEXT_PUBLIC_APP_ID_DEV || "";
   const isDesktop = useBreakpointValue({ base: false, lg: true })
+
   return (
     <div className={styles.container}>
       <Head>
@@ -59,8 +64,8 @@ const Home: NextPage = () => {
         />
         <link href="/favicon.ico" rel="icon" />
       </Head>
-
       <header className={styles.header}>
+      <GetLendingData></GetLendingData>
       <Box as="section" pb={{ base: '12', md: '24' }} p="3">
         <Box as="nav" bg="bg-surface" boxShadow="sm">
           <Flex>
@@ -147,5 +152,4 @@ const Home: NextPage = () => {
     </div>
   );
 };
-
 export default Home;
