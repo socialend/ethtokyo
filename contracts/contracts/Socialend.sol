@@ -5,11 +5,12 @@ import { ByteHasher } from "./helpers/ByteHasher.sol";
 import { IWorldID } from "./interfaces/IWorldID.sol";
 // import "contracts/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 // Uncomment this line to use console.log
 import "hardhat/console.sol";
 
-contract Socialend {
+contract Socialend is Ownable {
     using ByteHasher for bytes;
     address USDC;
     uint256 interestRate;
@@ -38,29 +39,28 @@ contract Socialend {
     struct LoanRequest {
         uint256 id;
         address borrower;
-        // uint256 worldId;
         uint256 amount;
         uint256 collateral;
-        uint256 interest;
         uint256 remainingAmount;
         uint256 dueDate;
         uint256 lastUpdated;
         bool isFunded;
         bool isExecuted;
     }
-    uint256 private requestIdCounter;
+    uint256 public requestIdCounter;
 
     /// @notice Thrown when attempting to reuse a nullifier
     error InvalidNullifier();
 
     /// @dev The World ID instance that will be used for verifying proofs
-    IWorldID internal immutable worldId;
+    IWorldID internal worldId;
     /// @dev The contract's external nullifier hash
     uint256 internal immutable externalNullifier;
     /// @dev The World ID group ID (always 1)
     uint256 internal immutable groupId = 1;
     /// @dev Whether a nullifier hash has been used already. Used to guarantee an action is only performed once by a single person
-    mapping(uint256 => bool) internal nullifierHashes;
+
+    mapping(uint256 => address) internal nullifierHashes;
 
     mapping(address => uint256) public outstandingDebts;
     mapping(address => bool) public blacklist;
@@ -70,39 +70,49 @@ contract Socialend {
 
     event LoanRequestCreated(
         uint256 id,
-        address borrower,
+        address indexed borrower,
         uint256 amount,
         uint256 collateral,
-        uint256 interest,
         uint256 dueDate
     );
 
-    event LoanRequestDeleted(uint256 id, address borrower);
+    event LoanRequestDeleted(uint256 id, address indexed borrower);
+
+    event LoanRequestFunded(uint256 id, address indexed funder, uint256 amount);
+    event LoanRepayment(uint256 id, address indexed borrower, uint256 amount, uint256 remainingAmount);
+    event CollateralLiquidated(uint256 id, address indexed borrower, uint256 amount);
+    event LoanExecuted(uint256 id, address indexed borrower, uint256 outstandingDebts);
 
     /**
      * @dev Creates a new loan request.
      * @param amount The requested loan amount.
      * @param collateral The collateral amount provided by the borrower.
-     * @param interest The loan interest amount.
      * @param dueDate The due date for the loan.
     /// @param root The root of the Merkle tree (returned by the JS widget).
     /// @param nullifierHash The nullifier hash for this proof, preventing double signaling (returned by the JS widget).
     /// @param proof The zero-knowledge proof that demostrates the claimer is registered with World ID (returned by the JS widget).
      */
     function createLoanRequest(
-        // uint256 worldId,
         uint256 amount,
         uint256 collateral,
-        uint256 interest,
         uint256 dueDate,
         uint256 root,
         uint256 nullifierHash,
         uint256[8] memory proof
     ) public {
         require(blacklist[msg.sender] == false, "You are in blacklist");
+        require(amount > 0, "Amount must be greater than 0");
+        require(collateral > 0, "Collateral must be greater than 0");
+        require(dueDate > block.timestamp, "Due date must be in the future");
+        require(
+            outstandingDebts[msg.sender] == 0,
+            "You have an outstanding debt"
+        );
 
         // uint256 collateralRatio = amount / collateral;
-        if (nullifierHashes[nullifierHash]) revert InvalidNullifier();
+
+        if (nullifierHashes[nullifierHash] == msg.sender) revert InvalidNullifier();
+
         worldId.verifyProof(
             root,
             groupId,
@@ -111,7 +121,8 @@ contract Socialend {
             externalNullifier,
             proof
         );
-        nullifierHashes[nullifierHash] = true;
+
+        nullifierHashes[nullifierHash] = msg.sender;
 
         //TODO : Get Lens followers and compute social score
         //TODO : Check social score is met the rewquirement
@@ -123,10 +134,8 @@ contract Socialend {
         LoanRequest memory newLoanRequest = LoanRequest(
             requestIdCounter,
             msg.sender,
-            // worldId,
             amount,
             collateral,
-            interest,
             amount,
             dueDate,
             block.timestamp,
@@ -140,7 +149,6 @@ contract Socialend {
             msg.sender,
             amount,
             collateral,
-            interest,
             dueDate
         );
     }
@@ -169,6 +177,7 @@ contract Socialend {
 
         funder[requestId] = msg.sender;
 
+        emit LoanRequestFunded(requestId, msg.sender, request.amount);
         // 追加のロジック（担保のロック、返済のスケジューリングなど）
     }
 
@@ -190,7 +199,10 @@ contract Socialend {
         if (request.remainingAmount == 0) {
             request.isExecuted = true;
             IERC20(USDC).transfer(msg.sender, request.collateral);
+            emit LoanExecuted(requestId, msg.sender);
         }
+
+        emit LoanRepayment(requestId, msg.sender, amount, request.remainingAmount);
     }
 
     function liquidateCollateral(uint256 requestId) public {
@@ -207,6 +219,8 @@ contract Socialend {
         IERC20(USDC).transfer(msg.sender, request.collateral);
 
         request.isExecuted = true;
+
+        emit CollateralLiquidated(requestId, msg.sender, request.collateral, request.remainingAmount);
     }
 
     function calculateInterest(
@@ -253,5 +267,17 @@ contract Socialend {
             request.lastUpdated
         );
         remainingAmount = request.remainingAmount + interest;
+    }
+
+    function changeCurrency(address _currency) public onlyOwner {
+        USDC = _currency;
+    }
+
+    function changeWorldcoin(IWorldID _worldId) public onlyOwner {
+        worldId = _worldId;
+    }
+
+    function changeInterestRate(uint256 _interestRate) public onlyOwner {
+        interestRate = _interestRate;
     }
 }

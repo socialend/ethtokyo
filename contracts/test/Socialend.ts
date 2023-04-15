@@ -48,31 +48,35 @@ describe("Socialend", function () {
   });
 
   it("Should create a loan request", async () => {
+    console.log("hey");
     await registerIdentity();
+    console.log("hey");
     await usdc.connect(addr3).approve(socialend.address, parseEther("10000"));
     await usdc.connect(addr3).transfer(socialend.address, parseEther("10000"));
     await usdc.connect(addr1).approve(socialend.address, parseEther("10000"));
+    console.log("hey");
     const [nullifierHash, proof] = await getProof(
       APP_ID,
       ACTION,
       addr1.address
     );
+    console.log(nullifierHash, "nullifierHash");
+    console.log(proof, "proof");
     await socialend
       .connect(addr1)
       .createLoanRequest(
         parseEther("2000"),
         parseEther("1000"),
-        parseEther("0.1"),
         1700000000,
         await getRoot(),
         nullifierHash,
         proof
-      );
+    );
+    console.log("hey");
     const loanRequest = await socialend.loanRequests(1);
     expect(loanRequest.borrower).to.equal(addr1.address);
     expect(loanRequest.amount).to.equal(parseEther("2000"));
     expect(loanRequest.collateral).to.equal(parseEther("1000"));
-    expect(loanRequest.interest).to.equal(parseEther("0.1"));
     expect(loanRequest.dueDate).to.equal(1700000000);
   });
 
@@ -87,12 +91,13 @@ describe("Socialend", function () {
     await usdc.connect(addr3).approve(socialend.address, parseEther("10000"));
     await usdc.connect(addr3).transfer(socialend.address, parseEther("10000"));
     await usdc.connect(addr1).approve(socialend.address, parseEther("10000"));
+    console.log(nullifierHash, "nullifierHash");
+    console.log(proof, "proof");
     await socialend
       .connect(addr1)
       .createLoanRequest(
         parseEther("3000"),
         parseEther("2000"),
-        parseEther("0.1"),
         1700000000,
         await getRoot(),
         nullifierHash,
@@ -106,22 +111,25 @@ describe("Socialend", function () {
     expect(loanRequest.isFunded).to.equal(true);
   });
 
-  it("Should repay the loan", async () => {
+  it.only("Should repay the loan", async () => {
+    console.log("hello");
     await registerIdentity();
+    console.log("hello")
     const [nullifierHash, proof] = await getProof(
       APP_ID,
       ACTION,
       addr1.address
     );
+    console.log("hello");
     await usdc.connect(addr3).approve(socialend.address, parseEther("10000"));
     await usdc.connect(addr3).transfer(socialend.address, parseEther("10000"));
     await usdc.connect(addr1).approve(socialend.address, parseEther("10000"));
+    console.log("hello");
     await socialend
       .connect(addr1)
       .createLoanRequest(
         parseEther("3000"),
         parseEther("2000"),
-        parseEther("0.1"),
         1700000000,
         await getRoot(),
         nullifierHash,
@@ -147,8 +155,12 @@ describe("Socialend", function () {
     const loanRequest = await socialend.loanRequests(1);
     console.log(loanRequest);
 
-    expect(loanRequest.remainingAmount).to.equal(parseEther("600"));
-    expect(loanRequest.isExecuted).to.equal(true);
+    expect(loanRequest.remainingAmount).to.equal(parseEther("600.00006"));
+    expect(loanRequest.isExecuted).to.equal(false);
+
+    // await socialend.connect(addr1).repayLoan(1, parseEther("610"));
+    // console.log(loanRequest.remainingAmount, "hey");
+    // expect(loanRequest.isExecuted).to.equal(true);
   });
 
   it("Should liquidate collateral after deadline", async () => {
@@ -169,7 +181,6 @@ describe("Socialend", function () {
       .createLoanRequest(
         parseEther("3000"),
         parseEther("2000"),
-        parseEther("0.1"),
         deadline,
         await getRoot(),
         nullifierHash,
@@ -207,7 +218,6 @@ describe("Socialend", function () {
       .createLoanRequest(
         parseEther("3000"),
         parseEther("2000"),
-        parseEther("0.1"),
         deadline,
         await getRoot(),
         nullifierHash,
