@@ -6,8 +6,8 @@ import { configureChains, createClient, WagmiConfig } from 'wagmi';
 import { arbitrum, goerli, mainnet, optimism, polygon, polygonMumbai } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 
-import { LensConfig, LensProvider, sources, development, appId, mumbai } from '@lens-protocol/react-web';
-import { bindings as wagmiBindings } from '@lens-protocol/wagmi';
+// import { LensConfig, LensProvider, sources, development, appId, mumbai } from '@lens-protocol/react-web';
+// import { bindings as wagmiBindings } from '@lens-protocol/wagmi';
 import React from 'react';
 
 import { ChakraProvider } from '@chakra-ui/react'
@@ -37,11 +37,11 @@ const wagmiClient = createClient({
   webSocketProvider,
 });
 
-const lensConfig: LensConfig = {
-  bindings: wagmiBindings(),
-  environment: development,
-  sources: [sources.lenster, sources.orb, appId('any-other-app-id')],
-};
+// const lensConfig: LensConfig = {
+//   bindings: wagmiBindings(),
+//   environment: development,
+//   sources: [sources.lenster, sources.orb, appId('any-other-app-id')],
+// };
 
 function MyApp({ Component, pageProps }: AppProps) {
   
@@ -49,9 +49,9 @@ function MyApp({ Component, pageProps }: AppProps) {
     <ChakraProvider>
       <WagmiConfig client={wagmiClient}>
         <RainbowKitProvider chains={chains}>
-          <LensProvider config={lensConfig}>
+          {/* <LensProvider config={lensConfig}> */}
             <Component {...pageProps} />
-          </LensProvider>
+          {/* </LensProvider> */}
         </RainbowKitProvider>
       </WagmiConfig>
     </ChakraProvider>

@@ -12,8 +12,6 @@
     "@chakra-ui/react": "^2.5.5",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
-    "@lens-protocol/react-web": "^1.0.1",
-    "@lens-protocol/wagmi": "^1.0.1",
     "@rainbow-me/rainbowkit": "^0.12.8",
     "@worldcoin/idkit": "^0.4.6",
 
