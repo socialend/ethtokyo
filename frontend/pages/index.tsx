@@ -29,6 +29,11 @@ const newArray = unpackedProof.map((item: BigNumber) => {
 });
 console.log(newArray);
 
+import { LoginButton, WhenLoggedInWithProfile } from '../components';
+
+import { Heading, Box, Button, Text, Link, Flex } from '@chakra-ui/react'
+import NextLink from "next/link";
+
 const Home: NextPage = () => {
   const handleProof = useCallback((result: ISuccessResult) => {
     return new Promise<void>((resolve) => {
@@ -53,11 +58,24 @@ const Home: NextPage = () => {
         <link href="/favicon.ico" rel="icon" />
       </Head>
 
-      <main className={styles.main}>
-        <ConnectButton />
+      <header className={styles.header}>
+        <Flex>
+          <Button as="a" href="/">KIZUNA Protocol</Button>
+          <ConnectButton />
+        </Flex>
+      </header> 
 
-        <h1 className={styles.title}>Welcome to Socialend</h1>
+      <main className={styles.main}>  
+      <Link href='/' color='blue.400' _hover={{ color: 'blue.500' }}>
+        About
+      </Link>
 
+       
+        <LoginButton />
+        <WhenLoggedInWithProfile>
+          {({ profile }) => <div>{`Welcome @${profile.handle}`}</div>}
+        </WhenLoggedInWithProfile>
+        <h1 className={styles.title}>Welcome to KIZUNA Protocol</h1>
         <IDKitWidget
           action=""
           signal="my_signal"
