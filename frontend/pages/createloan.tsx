@@ -100,11 +100,10 @@ const Home: NextPage = () => {
   };
 
   const createLoanRequest = async () => {
-    console.log(address);
+    if (!signer) return;
     const overrides = {
       gasLimit: ethers.utils.hexlify(200000),
     };
-    if (!signer) return;
     console.log(address);
     console.log(signer);
     console.log("create loan request");

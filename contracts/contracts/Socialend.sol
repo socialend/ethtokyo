@@ -70,13 +70,18 @@ contract Socialend is Ownable {
 
     event LoanRequestCreated(
         uint256 id,
-        address borrower,
+        address indexed borrower,
         uint256 amount,
         uint256 collateral,
         uint256 dueDate
     );
 
-    event LoanRequestDeleted(uint256 id, address borrower);
+    event LoanRequestDeleted(uint256 id, address indexed borrower);
+
+    event LoanRequestFunded(uint256 id, address indexed funder, uint256 amount);
+    event LoanRepayment(uint256 id, address indexed borrower, uint256 amount, uint256 remainingAmount);
+    event CollateralLiquidated(uint256 id, address indexed borrower, uint256 amount);
+    event LoanExecuted(uint256 id, address indexed borrower, uint256 outstandingDebts);
 
     /**
      * @dev Creates a new loan request.
@@ -172,6 +177,7 @@ contract Socialend is Ownable {
 
         funder[requestId] = msg.sender;
 
+        emit LoanRequestFunded(requestId, msg.sender, request.amount);
         // 追加のロジック（担保のロック、返済のスケジューリングなど）
     }
 
@@ -193,7 +199,10 @@ contract Socialend is Ownable {
         if (request.remainingAmount == 0) {
             request.isExecuted = true;
             IERC20(USDC).transfer(msg.sender, request.collateral);
+            emit LoanExecuted(requestId, msg.sender);
         }
+
+        emit LoanRepayment(requestId, msg.sender, amount, request.remainingAmount);
     }
 
     function liquidateCollateral(uint256 requestId) public {
@@ -210,6 +219,8 @@ contract Socialend is Ownable {
         IERC20(USDC).transfer(msg.sender, request.collateral);
 
         request.isExecuted = true;
+
+        emit CollateralLiquidated(requestId, msg.sender, request.collateral, request.remainingAmount);
     }
 
     function calculateInterest(
