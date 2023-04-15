@@ -2,12 +2,17 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import type { NextPage } from "next";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
-import { BigNumber, ethers } from "ethers";
+
+type Fetch = {
+  id: number,
+  title: string,
+};
 
 // import {
 //   LoginButton,
 //   WhenLoggedInWithProfile,
 // } from "../../archives/components/index_archive";
+
 
 import {
   Heading,
@@ -46,8 +51,8 @@ const Home: NextPage = () => {
         />
         <link href="/favicon.ico" rel="icon" />
       </Head>
-
       <header className={styles.header}>
+
         <Box as="section" pb={{ base: "12", md: "24" }} p="3">
           <Box as="nav" bg="bg-surface" boxShadow="sm">
             <Flex>
@@ -151,5 +156,4 @@ const Home: NextPage = () => {
     </div>
   );
 };
-
 export default Home;
