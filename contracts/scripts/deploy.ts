@@ -17,8 +17,8 @@ async function main() {
     "Socialend",
     [USDCTokenAddress, interestRate, worldIDAddress, APP_ID, ACTION],
     {
-      addressLabel: "socialend5",
-      contractLabel: "socialend5",
+      addressLabel: "socialend6",
+      contractLabel: "socialend6",
     }
   );
 

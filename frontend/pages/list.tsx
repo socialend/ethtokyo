@@ -42,8 +42,11 @@ import { useSigner, useNetwork, useAccount } from "wagmi";
 
 const Home: NextPage = () => {
   const { data: signer } = useSigner();
-  
-  const fundLoanrequest = async (requestId: string, amount: string) => {
+
+  const fundLoanrequest = async (requestId: string) => {
+    //TODO : Replace 
+    const amount = 1000;
+
     if (!signer) return;
     const overrides = {
       gasLimit: ethers.utils.hexlify(200000),
@@ -54,10 +57,11 @@ const Home: NextPage = () => {
       signer
     );
     console.log("Approving USDC");
+    
     const aptx = await USDCcontract.approve(contractAddress, amount, overrides);
     console.log(aptx, "aptx");
     const contract = new ethers.Contract(contractAddress, KizunaAbi, signer);
-    const tx = await contract.fundLoan(requestId, overrides);
+    const tx = await contract.fundLoanRequest(requestId);
     console.log(tx.hash);
   };
   return (
@@ -145,9 +149,7 @@ const Home: NextPage = () => {
               <Td>20%</Td>
               <Td>2023-06-31</Td>
               <Td>
-                <Button as="a" href="/">
-                  Lend Your USDC
-                </Button>
+                <Button onClick={() => { fundLoanrequest("1") }}>Lend Your USDC</Button>
               </Td>
             </Tr>
             <Tr>
@@ -164,9 +166,7 @@ const Home: NextPage = () => {
               <Td>20%</Td>
               <Td>2023-06-31</Td>
               <Td>
-                <Button as="a" href="/">
-                  Lend Your USDC
-                </Button>
+                <Button>Lend Your USDC</Button>
               </Td>
             </Tr>
             <Tr></Tr>
