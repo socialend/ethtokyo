@@ -13,11 +13,21 @@ import type { ISuccessResult } from "@worldcoin/idkit";
 import { BigNumber, ethers } from "ethers";
 
 
-import { LoginButton, WhenLoggedInWithProfile, GetLendingData } from '../components';
+import { LoginButton, WhenLoggedInWithProfile} from '../components';
 
 import { Heading, Box, Button, ButtonGroup, IconButton, Container, Text, Link, Flex, Spacer,Table, TableContainer, TableCaption,Thead,Tr, Th, Td, Tbody, HStack, Image, useBreakpointValue, Center } from '@chakra-ui/react'
 import NextLink from "next/link";
 
+import { GetServerSideProps } from 'next';
+import fetch from 'node-fetch';
+
+interface ApiResponse {
+  result: string;
+}
+
+interface HomeProps {
+  data: ApiResponse | null;
+}
 const abi = ethers.utils.defaultAbiCoder;
 const proof =
   "0x1b97faadb2ad2e02b518d10a4923690e16fd99e0602b3d804830a6c8404d9cf905ad5d34ff388917bef0dac6d6a439fd4d14e463b9733f37ffc99f5f5a13d5420d64dd232b67b44dbcee6161f4206f5c027bea154de131b03fa98e68ff770ba52bafcf88fd4203f568fb45c7c54d1dc48f91da0e0d20a5d2552c481923c2e6aa23e3540a6f3896c07ac849eca9669ba756aa88e934a399c7b5cfb4e796ea56f20fd3bfcbeed8424f40bd18218c9581a907e348d2ae9fab6ddb31ea0fae4237e124691d4541e44c64fe6aff8371573078d328871f576f22cb9c26f53f9f3097880a83a0d7085e00515e4510694125435b49b8004f7a2737063e8294de6fb7af50";
@@ -38,6 +48,65 @@ const newArray = unpackedProof.map((item: BigNumber) => {
 
 });
 console.log(newArray);
+
+const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4YWQxODZjMy01ZDMwLTRhODYtYWEwNy02MmMyNjU2NTMzNmIiLCJpYXQiOjE2ODE1NDAyMzYsInN1YiI6IjEifQ.Q4rylBTUdzoR2CNS_covIgfvAN3DIJ9DzAwkgk67BdA';
+const url = 'https://kpxwaia6nnabrppiqdi33uvieq.multibaas.com/api/v0/chains/ethereum/addresses/socialend5/contracts/socialend5/methods/getLoanRequest';
+
+const headers = {
+  'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4YWQxODZjMy01ZDMwLTRhODYtYWEwNy02MmMyNjU2NTMzNmIiLCJpYXQiOjE2ODE1NDAyMzYsInN1YiI6IjEifQ.Q4rylBTUdzoR2CNS_covIgfvAN3DIJ9DzAwkgk67BdA`,
+  'Content-Type': 'application/json'
+};
+
+const data = {
+  args: ['1'],
+  from: '0x353430317860245e4c6c9d048c07984812597901'
+};
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  const API_KEY = '[API Key]';
+  const url = 'https://kpxwaia6nnabrppiqdi33uvieq.multibaas.com/api/v0/chains/ethereum/addresses/socialend5/contracts/socialend5/methods/getLoanRequest';
+
+  const headers = {
+    'Authorization': `Bearer ${API_KEY}`,
+    'Content-Type': 'application/json'
+  };
+
+  const data = {
+    args: ['1'],
+    from: '0x353430317860245e4c6c9d048c07984812597901'
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(data)
+    });
+
+    if (response.ok) {
+      const apiResponse: ApiResponse = await response.json();
+      return {
+        props: {
+          data: apiResponse
+        }
+      };
+    } else {
+      console.error('Error:', response.status, response.statusText);
+      return {
+        props: {
+          data: null
+        }
+      };
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    return {
+      props: {
+        data: null
+      }
+    };
+  }
+};
 
 const Home: NextPage = () => {
   const handleProof = useCallback((result: ISuccessResult) => {
@@ -65,7 +134,6 @@ const Home: NextPage = () => {
         <link href="/favicon.ico" rel="icon" />
       </Head>
       <header className={styles.header}>
-      <GetLendingData></GetLendingData>
       <Box as="section" pb={{ base: '12', md: '24' }} p="3">
         <Box as="nav" bg="bg-surface" boxShadow="sm">
           <Flex>
@@ -84,8 +152,7 @@ const Home: NextPage = () => {
           </Container>
         </Box>
       </Box>
-      </header> 
-
+      </header>
       <LoginButton />
         <WhenLoggedInWithProfile>
           {({ profile }) => <div>{`Welcome @${profile.handle}`}</div>}
