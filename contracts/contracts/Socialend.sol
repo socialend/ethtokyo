@@ -10,10 +10,20 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 // Uncomment this line to use console.log
 import "hardhat/console.sol";
 
+interface IPUSHCommInterface {
+    function sendNotification(
+        address _channel,
+        address _recipient,
+        bytes calldata _identity
+    ) external;
+}
+
 contract Socialend is Ownable {
     using ByteHasher for bytes;
     address USDC;
     uint256 interestRate;
+    address pushCommContractAddress;
+    address pushChannelAddress;
 
     /**
      * @dev Initializes the Socialend contract.
@@ -26,11 +36,15 @@ contract Socialend is Ownable {
         uint256 _interestRate,
         IWorldID _worldId,
         string memory _appId,
-        string memory _actionId
+        string memory _actionId,
+        address _pushCommContractAddress,
+        address _pushChannelAddress
     ) {
         USDC = _USDC;
         interestRate = _interestRate; //20%
         worldId = _worldId;
+        pushCommContractAddress = _pushCommContractAddress;
+        pushChannelAddress = _pushChannelAddress;
         externalNullifier = abi
             .encodePacked(abi.encodePacked(_appId).hashToField(), _actionId)
             .hashToField();
@@ -79,9 +93,23 @@ contract Socialend is Ownable {
     event LoanRequestDeleted(uint256 id, address indexed borrower);
 
     event LoanRequestFunded(uint256 id, address indexed funder, uint256 amount);
-    event LoanRepayment(uint256 id, address indexed borrower, uint256 amount, uint256 remainingAmount);
-    event CollateralLiquidated(uint256 id, address indexed borrower, uint256 amount, uint256 remainingAmount);
-    event LoanExecuted(uint256 id, address indexed borrower, uint256 outstandingDebts);
+    event LoanRepayment(
+        uint256 id,
+        address indexed borrower,
+        uint256 amount,
+        uint256 remainingAmount
+    );
+    event CollateralLiquidated(
+        uint256 id,
+        address indexed borrower,
+        uint256 amount,
+        uint256 remainingAmount
+    );
+    event LoanExecuted(
+        uint256 id,
+        address indexed borrower,
+        uint256 outstandingDebts
+    );
 
     /**
      * @dev Creates a new loan request.
@@ -111,7 +139,8 @@ contract Socialend is Ownable {
 
         // uint256 collateralRatio = amount / collateral;
 
-        if (nullifierHashes[nullifierHash] == msg.sender) revert InvalidNullifier();
+        if (nullifierHashes[nullifierHash] == msg.sender)
+            revert InvalidNullifier();
 
         worldId.verifyProof(
             root,
@@ -176,6 +205,23 @@ contract Socialend is Ownable {
         request.isFunded = true;
 
         funder[requestId] = msg.sender;
+        IPUSHCommInterface(pushCommContractAddress).sendNotification(
+            pushChannelAddress,
+            request.borrower,
+            bytes(
+                string(
+                    abi.encodePacked(
+                        "0",
+                        "+",
+                        "3",
+                        "+",
+                        "Success",
+                        "+",
+                        "Your loan request has been funded"
+                    )
+                )
+            )
+        );
 
         emit LoanRequestFunded(requestId, msg.sender, request.amount);
         // 追加のロジック（担保のロック、返済のスケジューリングなど）
@@ -199,10 +245,32 @@ contract Socialend is Ownable {
         if (request.remainingAmount == 0) {
             request.isExecuted = true;
             IERC20(USDC).transfer(msg.sender, request.collateral);
+            IPUSHCommInterface(pushCommContractAddress).sendNotification(
+                pushChannelAddress,
+                funder[requestId],
+                bytes(
+                    string(
+                        abi.encodePacked(
+                            "0",
+                            "+",
+                            "3",
+                            "+",
+                            "Success",
+                            "+",
+                            "Your loan has been repaid"
+                        )
+                    )
+                )
+            );
             emit LoanExecuted(requestId, msg.sender, request.remainingAmount);
         }
 
-        emit LoanRepayment(requestId, msg.sender, amount, request.remainingAmount);
+        emit LoanRepayment(
+            requestId,
+            msg.sender,
+            amount,
+            request.remainingAmount
+        );
     }
 
     function liquidateCollateral(uint256 requestId) public {
@@ -220,7 +288,30 @@ contract Socialend is Ownable {
 
         request.isExecuted = true;
 
-        emit CollateralLiquidated(requestId, msg.sender, request.collateral, request.remainingAmount);
+        IPUSHCommInterface(pushCommContractAddress).sendNotification(
+            pushChannelAddress,
+            request.borrower,
+            bytes(
+                string(
+                    abi.encodePacked(
+                        "0",
+                        "+",
+                        "3",
+                        "+",
+                        "Success",
+                        "+",
+                        "Your loan has been liquidated"
+                    )
+                )
+            )
+        );
+
+        emit CollateralLiquidated(
+            requestId,
+            msg.sender,
+            request.collateral,
+            request.remainingAmount
+        );
     }
 
     function calculateInterest(
@@ -279,5 +370,19 @@ contract Socialend is Ownable {
 
     function changeInterestRate(uint256 _interestRate) public onlyOwner {
         interestRate = _interestRate;
+    }
+
+    function changePushCommContractAddress(address _pushCommContractAddress)
+        public
+        onlyOwner
+    {
+        pushCommContractAddress = _pushCommContractAddress;
+    }
+
+    function changePushChannelAddress(address _pushChannelAddress)
+        public
+        onlyOwner
+    {
+        pushChannelAddress = _pushChannelAddress;
     }
 }

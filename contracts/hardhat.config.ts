@@ -47,6 +47,16 @@ const config: HardhatUserConfig = {
       url: `https://matic-mumbai.chainstacklabs.com`,
       accounts,
     },
+    scroll: {
+      chainId: 534353,
+      url: "https://alpha-rpc.scroll.io/l2",
+      accounts,
+    },
+    linea: {
+      chainId: 59140,
+      url: "https://rpc.goerli.linea.build/",
+      accounts
+    },
   },
   dependencyCompiler: {
     paths: [

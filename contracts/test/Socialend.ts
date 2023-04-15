@@ -111,7 +111,7 @@ describe("Socialend", function () {
     expect(loanRequest.isFunded).to.equal(true);
   });
 
-  it.only("Should repay the loan", async () => {
+  it("Should repay the loan", async () => {
     console.log("hello");
     await registerIdentity();
     console.log("hello")

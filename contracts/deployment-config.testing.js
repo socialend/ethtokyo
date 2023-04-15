@@ -16,8 +16,8 @@ const config = {
   // For Curvegrid Test Network, provision a web3 API key and paste it here
   // For Ethereum Mainnet, Sepolia Testnet, Polygon, etc. provide a URL including credentials from
   // a blockchain node provider (Infura, Chainstack, etc.)
-  web3Endpoint:
-    "https://polygon-mumbai.g.alchemy.com/v2/bDtkZcHKjEo6ZD8BCGW5A0qh4tv10qnh",
+  web3Endpoint: "https://alpha-rpc.scroll.io/l2",
+    // "https://polygon-mumbai.g.alchemy.com/v2/bDtkZcHKjEo6ZD8BCGW5A0qh4tv10qnh",
 
   // API key to access MultiBaas from deployer
   // Note that the API key MUST be part of the "Administrators" group
