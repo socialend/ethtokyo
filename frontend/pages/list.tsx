@@ -34,28 +34,32 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
-
-const abi = ethers.utils.defaultAbiCoder;
-const proof =
-  "0x1b97faadb2ad2e02b518d10a4923690e16fd99e0602b3d804830a6c8404d9cf905ad5d34ff388917bef0dac6d6a439fd4d14e463b9733f37ffc99f5f5a13d5420d64dd232b67b44dbcee6161f4206f5c027bea154de131b03fa98e68ff770ba52bafcf88fd4203f568fb45c7c54d1dc48f91da0e0d20a5d2552c481923c2e6aa23e3540a6f3896c07ac849eca9669ba756aa88e934a399c7b5cfb4e796ea56f20fd3bfcbeed8424f40bd18218c9581a907e348d2ae9fab6ddb31ea0fae4237e124691d4541e44c64fe6aff8371573078d328871f576f22cb9c26f53f9f3097880a83a0d7085e00515e4510694125435b49b8004f7a2737063e8294de6fb7af50";
-
-const nullifierHash = BigNumber.from(
-  "0x2ed0a2cf6043326e9bdfd139cbbbb5b45cf7a89f97c044dbfdad7e6c0820fe3d"
-).toString();
-const root = BigNumber.from(
-  "0x1e762460b8756c5b050a9f07eb325bdf65294fb08dc7c8ca29c4b67216b85dd7"
-).toString();
-
-console.log(nullifierHash, "nullifierHash");
-console.log(root, "root");
-
-const unpackedProof = abi.decode(["uint256[8]"], proof)[0];
-const newArray = unpackedProof.map((item: BigNumber) => {
-  return item.toHexString();
-});
-console.log(newArray);
+import { KizunaAbi } from "../lib/abi";
+import { ERC20ABI } from "../lib/ERC20abi";
+import { contractAddress } from "../lib/web3";
+import { USDCContractAddress } from "../lib/web3";
+import { useSigner, useNetwork, useAccount } from "wagmi";
 
 const Home: NextPage = () => {
+  const { data: signer } = useSigner();
+  
+  const fundLoanrequest = async (requestId: string, amount: string) => {
+    if (!signer) return;
+    const overrides = {
+      gasLimit: ethers.utils.hexlify(200000),
+    };
+    const USDCcontract = new ethers.Contract(
+      USDCContractAddress,
+      ERC20ABI,
+      signer
+    );
+    console.log("Approving USDC");
+    const aptx = await USDCcontract.approve(contractAddress, amount, overrides);
+    console.log(aptx, "aptx");
+    const contract = new ethers.Contract(contractAddress, KizunaAbi, signer);
+    const tx = await contract.fundLoan(requestId, overrides);
+    console.log(tx.hash);
+  };
   return (
     <div className={styles.container}>
       <Head>
