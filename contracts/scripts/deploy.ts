@@ -1,7 +1,7 @@
 import hardhat, { ethers } from "hardhat";
 
 async function main() {
-  const USDCTokenAddress = "0xe6b8a5cf854791412c1f6efc7caf629f5df1c747";
+  const USDCTokenAddress = "0xE097d6B3100777DC31B34dC2c58fB524C2e76921";
   const interestRate = 20;
   const worldIDAddress = "0xABB70f7F39035586Da57B3c8136035f87AC0d2Aa";
   const APP_ID = "app_staging_7822955fc8648ea2c6dc374ae4decf2c";
@@ -17,8 +17,8 @@ async function main() {
     "Socialend",
     [USDCTokenAddress, interestRate, worldIDAddress, APP_ID, ACTION],
     {
-      addressLabel: "socialend",
-      contractLabel: "socialend",
+      addressLabel: "socialend5",
+      contractLabel: "socialend5",
     }
   );
 

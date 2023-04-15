@@ -35,16 +35,7 @@ import { Heading, Box, Button, Text, Link, Flex } from '@chakra-ui/react'
 import NextLink from "next/link";
 
 const Home: NextPage = () => {
-  const handleProof = useCallback((result: ISuccessResult) => {
-    return new Promise<void>((resolve) => {
-      setTimeout(() => resolve(), 3000);
-      // NOTE: Example of how to decline the verification request and show an error message to the user
-    });
-  }, []);
-
-  const onSuccess = (result: ISuccessResult) => {
-    console.log(result);
-  };
+  
   const app_id = process.env.NEXT_PUBLIC_APP_ID || "";
   const app_id_dev = process.env.NEXT_PUBLIC_APP_ID_DEV || "";
   return (
@@ -76,17 +67,7 @@ const Home: NextPage = () => {
           {({ profile }) => <div>{`Welcome @${profile.handle}`}</div>}
         </WhenLoggedInWithProfile>
         <h1 className={styles.title}>Welcome to KIZUNA Protocol</h1>
-        <IDKitWidget
-          action=""
-          signal="my_signal"
-          onSuccess={onSuccess}
-          handleVerify={handleProof}
-          app_id={app_id_dev}
-          theme="light"
-          // walletConnectProjectId="get_this_from_walletconnect_portal"
-        >
-          {({ open }) => <button onClick={open}>Click me</button>}
-        </IDKitWidget>
+        
       </main>
 
       <footer className={styles.footer}>
