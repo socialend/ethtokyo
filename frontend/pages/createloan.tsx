@@ -59,6 +59,8 @@ const Home: NextPage = () => {
     });
   }, []);
 
+  console.log(dueDate, "dueDate");
+
   const onSuccess = async (result: ISuccessResult) => {
     console.log(result);
     const { proof, merkle_root, nullifier_hash } = result;
@@ -82,7 +84,9 @@ const Home: NextPage = () => {
   };
   const handleDueDateChange = (e: any) => {
     const inputValue = e.target.value;
-    setDueDate(inputValue);
+    const dateObject = new Date(inputValue);
+    const timestamp = dateObject.getTime();
+    setDueDate(timestamp.toString());
   };
 
   const handleWorldcoinParameteres = (
@@ -180,7 +184,13 @@ const Home: NextPage = () => {
         <Input onChange={handleCollateralChange}></Input>
 
         <Text>Deadline</Text>
-        <Input onChange={handleDueDateChange}></Input>
+        <Input
+          placeholder="Select Date and Time"
+          size="md"
+          type="datetime-local"
+          onChange={handleDueDateChange}
+        />
+        {/* <Input></Input> */}
 
         <IDKitWidget
           action=""

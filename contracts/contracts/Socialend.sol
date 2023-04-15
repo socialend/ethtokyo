@@ -80,7 +80,7 @@ contract Socialend is Ownable {
 
     event LoanRequestFunded(uint256 id, address indexed funder, uint256 amount);
     event LoanRepayment(uint256 id, address indexed borrower, uint256 amount, uint256 remainingAmount);
-    event CollateralLiquidated(uint256 id, address indexed borrower, uint256 amount);
+    event CollateralLiquidated(uint256 id, address indexed borrower, uint256 amount, uint256 remainingAmount);
     event LoanExecuted(uint256 id, address indexed borrower, uint256 outstandingDebts);
 
     /**
@@ -199,7 +199,7 @@ contract Socialend is Ownable {
         if (request.remainingAmount == 0) {
             request.isExecuted = true;
             IERC20(USDC).transfer(msg.sender, request.collateral);
-            emit LoanExecuted(requestId, msg.sender);
+            emit LoanExecuted(requestId, msg.sender, request.remainingAmount);
         }
 
         emit LoanRepayment(requestId, msg.sender, amount, request.remainingAmount);
