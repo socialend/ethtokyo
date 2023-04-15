@@ -8,6 +8,12 @@ import { IDKitWidget } from "@worldcoin/idkit";
 import type { ISuccessResult } from "@worldcoin/idkit";
 import { BigNumber, ethers } from "ethers";
 
+
+import { LoginButton, WhenLoggedInWithProfile } from '../components';
+
+import { Heading, Box, Button, ButtonGroup, IconButton, Container, Text, Link, Flex, Spacer,Table, TableContainer, TableCaption,Thead,Tr, Th, Td, Tbody, HStack, Image, useBreakpointValue, Center } from '@chakra-ui/react'
+import NextLink from "next/link";
+
 const abi = ethers.utils.defaultAbiCoder;
 const proof =
   "0x1b97faadb2ad2e02b518d10a4923690e16fd99e0602b3d804830a6c8404d9cf905ad5d34ff388917bef0dac6d6a439fd4d14e463b9733f37ffc99f5f5a13d5420d64dd232b67b44dbcee6161f4206f5c027bea154de131b03fa98e68ff770ba52bafcf88fd4203f568fb45c7c54d1dc48f91da0e0d20a5d2552c481923c2e6aa23e3540a6f3896c07ac849eca9669ba756aa88e934a399c7b5cfb4e796ea56f20fd3bfcbeed8424f40bd18218c9581a907e348d2ae9fab6ddb31ea0fae4237e124691d4541e44c64fe6aff8371573078d328871f576f22cb9c26f53f9f3097880a83a0d7085e00515e4510694125435b49b8004f7a2737063e8294de6fb7af50";
@@ -29,11 +35,6 @@ const newArray = unpackedProof.map((item: BigNumber) => {
 });
 console.log(newArray);
 
-import { LoginButton, WhenLoggedInWithProfile } from '../components';
-
-import { Heading, Box, Button, Text, Link, Flex } from '@chakra-ui/react'
-import NextLink from "next/link";
-
 const Home: NextPage = () => {
   const handleProof = useCallback((result: ISuccessResult) => {
     return new Promise<void>((resolve) => {
@@ -47,6 +48,7 @@ const Home: NextPage = () => {
   };
   const app_id = process.env.NEXT_PUBLIC_APP_ID || "";
   const app_id_dev = process.env.NEXT_PUBLIC_APP_ID_DEV || "";
+  const isDesktop = useBreakpointValue({ base: false, lg: true })
   return (
     <div className={styles.container}>
       <Head>
@@ -59,23 +61,77 @@ const Home: NextPage = () => {
       </Head>
 
       <header className={styles.header}>
-        <Flex>
-          <Button as="a" href="/">KIZUNA Protocol</Button>
-          <ConnectButton />
-        </Flex>
+      <Box as="section" pb={{ base: '12', md: '24' }} p="3">
+        <Box as="nav" bg="bg-surface" boxShadow="sm">
+          <Flex>
+            <Button as="a" href="/">KIZUNA Protocol</Button><Spacer></Spacer><ConnectButton />
+          </Flex>
+          <Container py={{ base: '4', lg: '5' }}>
+            <HStack spacing="5" justify="space-between">
+                <Flex justify='center' flex="1" >
+                  <ButtonGroup variant="link" spacing="100">
+                      <Link href='/list'><Button key="list" colorScheme='black' variant='outline'>List</Button></Link>
+                      <Link href='/createloan'><Button>Create Loan</Button></Link>
+                      <Link href='/yourpool'><Button>Your Pool</Button></Link>
+                  </ButtonGroup>
+                </Flex>
+            </HStack>
+          </Container>
+        </Box>
+      </Box>
       </header> 
 
-      <main className={styles.main}>  
-      <Link href='/' color='blue.400' _hover={{ color: 'blue.500' }}>
-        About
-      </Link>
-
-       
-        <LoginButton />
+      <LoginButton />
         <WhenLoggedInWithProfile>
           {({ profile }) => <div>{`Welcome @${profile.handle}`}</div>}
         </WhenLoggedInWithProfile>
         <h1 className={styles.title}>Welcome to KIZUNA Protocol</h1>
+      <Link href='/' color='blue.400' _hover={{ color: 'blue.500' }}>
+        About
+      </Link>
+      <Heading>
+        <Text>Lending List</Text>	
+      </Heading>
+
+        <TableContainer>
+    <Table variant='simple'>
+        <Thead>
+          <Tr>
+            <Th>Image</Th>
+            <Th>Asset</Th>
+            <Th>Amount</Th> 
+            <Th>Collateral</Th>
+            <Th>APY</Th>
+            <Th>DueDate</Th>
+            <Th>Lend</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          <Tr>
+            <Td><Image src='./usd-coin-usdc-logo.png' boxSize='50px'  alt='Dan Abramov' /></Td>
+            <Td>USDC</Td>
+            <Td>72.85</Td>
+            <Td>75.4%</Td>
+            <Td>20%</Td>
+            <Td>2023-06-31</Td>
+            <Td><Button as="a" href="/">Lend Your USDC</Button></Td>
+          </Tr>
+          <Tr>
+          <Td><Image src='./usd-coin-usdc-logo.png' boxSize='50px'  alt='Dan Abramov' /></Td>
+            <Td>USDC</Td>
+            <Td>72.85</Td>
+            <Td>75.4%</Td>
+            <Td>20%</Td>
+            <Td>2023-06-31</Td>
+            <Td><Button as="a" href="/">Lend Your USDC</Button></Td>
+          </Tr>
+          <Tr>
+          </Tr>
+        </Tbody>
+      </Table>
+    </TableContainer>
+    
+    <Center p="2">
         <IDKitWidget
           action=""
           signal="my_signal"
@@ -85,15 +141,9 @@ const Home: NextPage = () => {
           theme="light"
           // walletConnectProjectId="get_this_from_walletconnect_portal"
         >
-          {({ open }) => <button onClick={open}>Click me</button>}
+          {({ open }) => <Button onClick={open}>World ID</Button>}
         </IDKitWidget>
-      </main>
-
-      <footer className={styles.footer}>
-        <a href="https://rainbow.me" rel="noopener noreferrer" target="_blank">
-          Made with ❤️ by your frens at 🌈
-        </a>
-      </footer>
+      </Center>
     </div>
   );
 };
