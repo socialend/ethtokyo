@@ -2,234 +2,218 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import type { NextPage } from "next";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
+import axios from "axios";
 
 import { useState, useEffect, useCallback } from "react";
-
 type Fetch = {
-  id: number;
-  title: string;
+  id: number,
+  title: string,
 };
-
+import { IDKitWidget } from "@worldcoin/idkit";
+import type { ISuccessResult } from "@worldcoin/idkit";
 import { BigNumber, ethers } from "ethers";
 
-// import {
-//   LoginButton,
-//   WhenLoggedInWithProfile,
-// } from "../../archives/components/index_archive";
-
-import {
-  Heading,
-  Box,
-  Button,
-  ButtonGroup,
-  IconButton,
-  Container,
-  Text,
-  Link,
-  Flex,
-  Spacer,
-  Table,
-  TableContainer,
-  TableCaption,
-  Thead,
-  Tr,
-  Th,
-  Td,
-  Tbody,
-  HStack,
-  Image,
-  useBreakpointValue,
-  Center,
-} from "@chakra-ui/react";
+import { Heading, Box, Button, ButtonGroup, IconButton, Container, Text, Link, Flex, Spacer,Table, TableContainer, TableCaption,Thead,Tr, Th, Td, Tbody, HStack, Image, useBreakpointValue, Center } from '@chakra-ui/react'
 import NextLink from "next/link";
 
-import { GetServerSideProps } from "next";
-import fetch from "node-fetch";
+import { GetServerSideProps } from 'next';
 
 interface ApiResponse {
   result: string;
 }
+const abi = ethers.utils.defaultAbiCoder;
+const proof =
+  "0x1b97faadb2ad2e02b518d10a4923690e16fd99e0602b3d804830a6c8404d9cf905ad5d34ff388917bef0dac6d6a439fd4d14e463b9733f37ffc99f5f5a13d5420d64dd232b67b44dbcee6161f4206f5c027bea154de131b03fa98e68ff770ba52bafcf88fd4203f568fb45c7c54d1dc48f91da0e0d20a5d2552c481923c2e6aa23e3540a6f3896c07ac849eca9669ba756aa88e934a399c7b5cfb4e796ea56f20fd3bfcbeed8424f40bd18218c9581a907e348d2ae9fab6ddb31ea0fae4237e124691d4541e44c64fe6aff8371573078d328871f576f22cb9c26f53f9f3097880a83a0d7085e00515e4510694125435b49b8004f7a2737063e8294de6fb7af50";
 
-interface HomeProps {
-  data: ApiResponse | null;
-}
+  const nullifierHash = BigNumber.from(
+    "0x2ed0a2cf6043326e9bdfd139cbbbb5b45cf7a89f97c044dbfdad7e6c0820fe3d"
+  ).toString();
+const root =
+  BigNumber.from("0x1e762460b8756c5b050a9f07eb325bdf65294fb08dc7c8ca29c4b67216b85dd7").toString();
+      
+  console.log(nullifierHash, "nullifierHash");
+  console.log(root, "root");
 
-const API_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4YWQxODZjMy01ZDMwLTRhODYtYWEwNy02MmMyNjU2NTMzNmIiLCJpYXQiOjE2ODE1NDAyMzYsInN1YiI6IjEifQ.Q4rylBTUdzoR2CNS_covIgfvAN3DIJ9DzAwkgk67BdA";
-const url =
-  "https://kpxwaia6nnabrppiqdi33uvieq.multibaas.com/api/v0/chains/ethereum/addresses/socialend5/contracts/socialend5/methods/getLoanRequest";
 
-const headers = {
-  Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4YWQxODZjMy01ZDMwLTRhODYtYWEwNy02MmMyNjU2NTMzNmIiLCJpYXQiOjE2ODE1NDAyMzYsInN1YiI6IjEifQ.Q4rylBTUdzoR2CNS_covIgfvAN3DIJ9DzAwkgk67BdA`,
-  "Content-Type": "application/json",
-};
+const unpackedProof = abi.decode(["uint256[8]"], proof)[0];
+const newArray = unpackedProof.map((item: BigNumber) => {
+  return item.toHexString();
 
-const data = {
-  args: ["1"],
-  from: "0x353430317860245e4c6c9d048c07984812597901",
-};
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  const API_KEY = "[API Key]";
-  const url =
-    "https://kpxwaia6nnabrppiqdi33uvieq.multibaas.com/api/v0/chains/ethereum/addresses/socialend5/contracts/socialend5/methods/getLoanRequest";
-
-  const headers = {
-    Authorization: `Bearer ${API_KEY}`,
-    "Content-Type": "application/json",
-  };
-
-  const data = {
-    args: ["1"],
-    from: "0x353430317860245e4c6c9d048c07984812597901",
-  };
-
-  try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify(data),
-    });
-
-    if (response.ok ) {
-      const apiResponse: ApiResponse = await response.json();
-      return {
-        props: {
-          data: apiResponse,
-        },
-      };
-    } else {
-      console.error("Error:", response.status, response.statusText);
-      return {
-        props: {
-          data: null,
-        },
-      };
-    }
-  } catch (error) {
-    console.error("Error:", error);
-    return {
-      props: {
-        data: null,
-      },
-    };
-  }
-};
+});
+console.log(newArray);
 
 const Home: NextPage = () => {
+  const handleProof = useCallback((result: ISuccessResult) => {
+    return new Promise<void>((resolve) => {
+      setTimeout(() => resolve(), 3000);
+      // NOTE: Example of how to decline the verification request and show an error message to the user
+    });
+  }, []);
+
+  const onSuccess = (result: ISuccessResult) => {
+    console.log(result);
+  };
+  const app_id = process.env.NEXT_PUBLIC_APP_ID || "";
+  const app_id_dev = process.env.NEXT_PUBLIC_APP_ID_DEV || "";
+  const isDesktop = useBreakpointValue({ base: false, lg: true })
+
+  const [data, setData] = useState<any[]>([]);
+  const [data2, setData2] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4YWQxODZjMy01ZDMwLTRhODYtYWEwNy02MmMyNjU2NTMzNmIiLCJpYXQiOjE2ODE1NDAyMzYsInN1YiI6IjEifQ.Q4rylBTUdzoR2CNS_covIgfvAN3DIJ9DzAwkgk67BdA';
+      const url = 'https://kpxwaia6nnabrppiqdi33uvieq.multibaas.com/api/v0/chains/ethereum/addresses/socialend8/contracts/socialend8/methods/getLoanRequest';
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`,
+      }
+      console.log(headers)
+      const postData = {
+        args: ['1'],
+        from: '0x353430317860245e4c6c9d048c07984812597901'
+      };
+      const url2 = 'https://kpxwaia6nnabrppiqdi33uvieq.multibaas.com/api/v0/chains/ethereum/addresses/socialend8/contracts/socialend8/methods/requestIdCounter';
+
+      const postData2 = {
+        args: [],
+        from: '0x353430317860245e4c6c9d048c07984812597901'
+      }
+      //await axios.post(url, postData, {headers: headers});
+      // const headers = {
+      //   'Authorization': `Bearer ${API_KEY}`,
+      //   'Content-Type': 'application/json',
+      //   'Access-Control-Allow-Origin': '*'
+      // };
+
+      // const postData = {
+      //   args: ['1'],
+      //   from: '0x353430317860245e4c6c9d048c07984812597901'
+      // };
+
+      try {
+        const response = await axios.post(url, postData, {headers: headers});
+        const response2 = await axios.post(url2, postData2, {headers: headers});
+        if (response.status === 200) {
+          if (response2.status === 200) {
+            const record = [response.data.result.output]
+            const record2 = [response2.data.result.output]
+            console.log('**********************')
+            console.log(record[0])
+            console.log(response)
+            console.log(response2)
+            console.log(record2[0])
+            console.log('**********************')
+            setData(record);
+            setData2(record2);
+          } else {
+            console.error('Error:', response2.status, response.statusText);
+          }
+        }else {
+          console.error('Error:', response.status, response.statusText);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
-    <>
-      <div className={styles.container}>
-        <Head>
-          <title>Kizuna Protocol</title>
-          <meta
-            content="Generated by @rainbow-me/create-rainbowkit"
-            name="description"
-          />
-          <link href="/favicon.ico" rel="icon" />
-        </Head>
-        <header className={styles.header}>
-          <Box as="section" pb={{ base: "12", md: "24" }} p="3">
-            <Box as="nav" bg="bg-surface" boxShadow="sm">
-              <Flex>
-                <Button as="a" href="/">
-                  KIZUNA Protocol
-                </Button>
-                <Spacer></Spacer>
-                <ConnectButton />
-              </Flex>
-              <Container py={{ base: "4", lg: "5" }}>
-                <HStack spacing="5" justify="space-between">
-                  <Flex justify="center" flex="1">
-                    <ButtonGroup variant="link" spacing="100">
-                      <Link href="/list">
-                        <Button
-                          key="list"
-                          colorScheme="black"
-                          variant="outline"
-                        >
-                          List
-                        </Button>
-                      </Link>
-                      <Link href="/createloan">
-                        <Button>Create Loan</Button>
-                      </Link>
-                      <Link href="/yourpool">
-                        <Button>Your Pool</Button>
-                      </Link>
-                    </ButtonGroup>
-                  </Flex>
-                </HStack>
-              </Container>
-            </Box>
-          </Box>
-        </header>
-        <h1 className={styles.title}>Welcome to KIZUNA Protocol</h1>
-        <Link href="/" color="blue.400" _hover={{ color: "blue.500" }}>
-          About
-        </Link>
-        <Heading>
-          <Text>Lending List</Text>
-        </Heading>
+    <div className={styles.container}>
+      <Head>
+        <title>RainbowKit App</title>
+        <meta
+          content="Generated by @rainbow-me/create-rainbowkit"
+          name="description"
+        />
+        <link href="/favicon.ico" rel="icon" />
+      </Head>
+      <header className={styles.header}>
+      <Box as="section" pb={{ base: '12', md: '24' }} p="3">
+        <Box as="nav" bg="bg-surface" boxShadow="sm">
+          <Flex>
+            <Button as="a" href="/">KIZUNA Protocol</Button><Spacer></Spacer><ConnectButton />
+          </Flex>
+          <Container py={{ base: '4', lg: '5' }}>
+            <HStack spacing="5" justify="space-between">
+                <Flex justify='center' flex="1" >
+                  <ButtonGroup variant="link" spacing="100">
+                      <Link href='/list'><Button key="list" colorScheme='black' variant='outline'>List</Button></Link>
+                      <Link href='/createloan'><Button>Create Loan</Button></Link>
+                      <Link href='/yourpool'><Button>Your Pool</Button></Link>
+                  </ButtonGroup>
+                </Flex>
+            </HStack>
+          </Container>
+        </Box>
+      </Box>
+      </header>
+      <h1 className={styles.title}>Welcome to KIZUNA Protocol</h1>
+      <Link href='/' color='blue.400' _hover={{ color: 'blue.500' }}>
+        About
+      </Link>
+      <Heading>
+        <Text>Lending List</Text>	
+      </Heading>
 
         <TableContainer>
-          <Table variant="simple">
-            <Thead>
-              <Tr>
-                <Th>Image</Th>
-                <Th>Asset</Th>
-                <Th>Amount</Th>
-                <Th>Collateral</Th>
-                <Th>APY</Th>
-                <Th>DueDate</Th>
-                <Th>Lend</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              <Tr>
-                <Td>
-                  <Image
-                    src="./usd-coin-usdc-logo.png"
-                    boxSize="50px"
-                    alt="Dan Abramov"
-                  />
-                </Td>
-                <Td>USDC</Td>
-                <Td>72.85</Td>
-                <Td>75.4%</Td>
-                <Td>20%</Td>
-                <Td>2023-06-31</Td>
-                <Td>
-                  <Button as="a" href="/">
-                    Lend Your USDC
-                  </Button>
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>
-                  <Image
-                    src="./usd-coin-usdc-logo.png"
-                    boxSize="50px"
-                    alt="Dan Abramov"
-                  />
-                </Td>
-                <Td>USDC</Td>
-                <Td>72.85</Td>
-                <Td>75.4%</Td>
-                <Td>20%</Td>
-                <Td>2023-06-31</Td>
-                <Td>
-                  <Button as="a" href="/">
-                    Lend Your USDC
-                  </Button>
-                </Td>
-              </Tr>
-              <Tr></Tr>
-            </Tbody>
-          </Table>
-        </TableContainer>
-      </div>
-    </>
+    <Table variant='simple'>
+        <Thead>
+          <Tr>
+            <Th>Image</Th>
+            <Th>Asset</Th>
+            <Th>Amount</Th> 
+            <Th>Collateral</Th>
+            <Th>APY</Th>
+            <Th>DueDate</Th>
+            <Th>Lend</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          {data.map((rec)=>{
+
+            return (
+              <tr>
+                <Td><Image src='./usd-coin-usdc-logo.png' boxSize='50px'  alt='Dan Abramov' /></Td>
+                <td>
+                USDC
+                </td>
+                <td>
+                {rec.amount}
+                </td>
+                <td>
+                {rec.collateral}
+                </td>
+                <td>
+                20
+                </td>
+                <td>
+                {rec.dueDate}
+                </td>
+                <Td><Button as="a" href="/">Lend Your USDC</Button></Td>
+              </tr>
+            )
+          })}
+        </Tbody>
+      </Table>
+    </TableContainer>
+    
+    <Center p="2">
+        <IDKitWidget
+          action=""
+          signal="my_signal"
+          onSuccess={onSuccess}
+          handleVerify={handleProof}
+          app_id={app_id_dev}
+          theme="light"
+          // walletConnectProjectId="get_this_from_walletconnect_portal"
+        >
+          {({ open }) => <Button onClick={open}>World ID</Button>}
+        </IDKitWidget>
+      </Center>
+    </div>
   );
 };
 export default Home;
