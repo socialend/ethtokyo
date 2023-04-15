@@ -4,51 +4,58 @@ import Head from "next/head";
 import styles from "../styles/Home.module.css";
 
 import { useCallback } from "react";
-import { IDKitWidget } from "@worldcoin/idkit";
 import type { ISuccessResult } from "@worldcoin/idkit";
 import { BigNumber, ethers } from "ethers";
 
+// import {
+//   LoginButton,
+//   WhenLoggedInWithProfile,
+// } from "../../archives/components/index_archive";
 
-import { LoginButton, WhenLoggedInWithProfile } from '../components';
-
-import { Heading, Box, Button, ButtonGroup, IconButton, Container, Text, Link, Flex, Spacer,Table, TableContainer, TableCaption,Thead,Tr, Th, Td, Tbody, HStack, Image, useBreakpointValue, Center } from '@chakra-ui/react'
+import {
+  Heading,
+  Box,
+  Button,
+  ButtonGroup,
+  Container,
+  Text,
+  Link,
+  Flex,
+  Spacer,
+  Table,
+  TableContainer,
+  Thead,
+  Tr,
+  Th,
+  Td,
+  Tbody,
+  HStack,
+  Image,
+  useBreakpointValue,
+} from "@chakra-ui/react";
 import NextLink from "next/link";
 
 const abi = ethers.utils.defaultAbiCoder;
 const proof =
   "0x1b97faadb2ad2e02b518d10a4923690e16fd99e0602b3d804830a6c8404d9cf905ad5d34ff388917bef0dac6d6a439fd4d14e463b9733f37ffc99f5f5a13d5420d64dd232b67b44dbcee6161f4206f5c027bea154de131b03fa98e68ff770ba52bafcf88fd4203f568fb45c7c54d1dc48f91da0e0d20a5d2552c481923c2e6aa23e3540a6f3896c07ac849eca9669ba756aa88e934a399c7b5cfb4e796ea56f20fd3bfcbeed8424f40bd18218c9581a907e348d2ae9fab6ddb31ea0fae4237e124691d4541e44c64fe6aff8371573078d328871f576f22cb9c26f53f9f3097880a83a0d7085e00515e4510694125435b49b8004f7a2737063e8294de6fb7af50";
 
-  const nullifierHash = BigNumber.from(
-    "0x2ed0a2cf6043326e9bdfd139cbbbb5b45cf7a89f97c044dbfdad7e6c0820fe3d"
-  ).toString();
-const root =
-  BigNumber.from("0x1e762460b8756c5b050a9f07eb325bdf65294fb08dc7c8ca29c4b67216b85dd7").toString();
-      
-  console.log(nullifierHash, "nullifierHash");
-  console.log(root, "root");
+const nullifierHash = BigNumber.from(
+  "0x2ed0a2cf6043326e9bdfd139cbbbb5b45cf7a89f97c044dbfdad7e6c0820fe3d"
+).toString();
+const root = BigNumber.from(
+  "0x1e762460b8756c5b050a9f07eb325bdf65294fb08dc7c8ca29c4b67216b85dd7"
+).toString();
 
+console.log(nullifierHash, "nullifierHash");
+console.log(root, "root");
 
 const unpackedProof = abi.decode(["uint256[8]"], proof)[0];
 const newArray = unpackedProof.map((item: BigNumber) => {
   return item.toHexString();
-
 });
 console.log(newArray);
 
 const Home: NextPage = () => {
-  const handleProof = useCallback((result: ISuccessResult) => {
-    return new Promise<void>((resolve) => {
-      setTimeout(() => resolve(), 3000);
-      // NOTE: Example of how to decline the verification request and show an error message to the user
-    });
-  }, []);
-
-  const onSuccess = (result: ISuccessResult) => {
-    console.log(result);
-  };
-  const app_id = process.env.NEXT_PUBLIC_APP_ID || "";
-  const app_id_dev = process.env.NEXT_PUBLIC_APP_ID_DEV || "";
-  const isDesktop = useBreakpointValue({ base: false, lg: true })
   return (
     <div className={styles.container}>
       <Head>
@@ -61,32 +68,44 @@ const Home: NextPage = () => {
       </Head>
 
       <header className={styles.header}>
-      <Box as="section" pb={{ base: '12', md: '24' }} p="3">
-        <Box as="nav" bg="bg-surface" boxShadow="sm">
-          <Flex>
-            <Button as="a" href="/">KIZUNA Protocol</Button><Spacer></Spacer><ConnectButton />
-          </Flex>
-          <Container py={{ base: '4', lg: '5' }}>
-            <HStack spacing="5" justify="space-between">
-                <Flex justify='center' flex="1" >
+        <Box as="section" pb={{ base: "12", md: "24" }} p="3">
+          <Box as="nav" bg="bg-surface" boxShadow="sm">
+            <Flex>
+              <Button as="a" href="/">
+                KIZUNA Protocol
+              </Button>
+              <Spacer></Spacer>
+              <ConnectButton />
+            </Flex>
+            <Container py={{ base: "4", lg: "5" }}>
+              <HStack spacing="5" justify="space-between">
+                <Flex justify="center" flex="1">
                   <ButtonGroup variant="link" spacing="100">
-                      <Link href='/list'><Button key="list" colorScheme='black' variant='outline'>List</Button></Link>
-                      <Link href='/createloan'><Button>Create Loan</Button></Link>
-                      <Link href='/yourpool'><Button>Your Pool</Button></Link>
+                    <Link href="/list">
+                      <Button key="list" colorScheme="black" variant="outline">
+                        List
+                      </Button>
+                    </Link>
+                    <Link href="/createloan">
+                      <Button>Create Loan</Button>
+                    </Link>
+                    <Link href="/yourpool">
+                      <Button>Your Pool</Button>
+                    </Link>
                   </ButtonGroup>
                 </Flex>
-            </HStack>
-          </Container>
+              </HStack>
+            </Container>
+          </Box>
         </Box>
-      </Box>
-      </header> 
+      </header>
 
-      <LoginButton />
-        <WhenLoggedInWithProfile>
-          {({ profile }) => <div>{`Welcome @${profile.handle}`}</div>}
-        </WhenLoggedInWithProfile>
-        <h1 className={styles.title}>Welcome to KIZUNA Protocol</h1>
-      <Link href='/' color='blue.400' _hover={{ color: 'blue.500' }}>
+      {/* <LoginButton />
+      <WhenLoggedInWithProfile>
+        {({ profile }) => <div>{`Welcome @${profile.handle}`}</div>}
+      </WhenLoggedInWithProfile> */}
+      <h1 className={styles.title}>Welcome to KIZUNA Protocol</h1>
+      <Link href="/" color="blue.400" _hover={{ color: "blue.500" }}>
         About
       </Link>
       <Heading>
@@ -94,57 +113,62 @@ const Home: NextPage = () => {
         <Text> </Text>
       </Heading>
 
-        <TableContainer>
-  <Table variant='simple'>
-        <Thead>
-          <Tr>
-            <Th>Image</Th>
-            <Th>Asset</Th>
-            <Th>Amount</Th> 
-            <Th>Collateral</Th>
-            <Th>APY</Th>
-            <Th>DueDate</Th>
-            <Th>Lend</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          <Tr>
-            <Td><Image src='./usd-coin-usdc-logo.png' boxSize='50px'  alt='Dan Abramov' /></Td>
-            <Td>USDC</Td>
-            <Td>72.85</Td>
-            <Td>75.4%</Td>
-            <Td>20%</Td>
-            <Td>2023-06-31</Td>
-            <Td><Button as="a" href="/">Lend Your USDC</Button></Td>
-          </Tr>
-          <Tr>
-          <Td><Image src='./usd-coin-usdc-logo.png' boxSize='50px'  alt='Dan Abramov' /></Td>
-            <Td>USDC</Td>
-            <Td>72.85</Td>
-            <Td>75.4%</Td>
-            <Td>20%</Td>
-            <Td>2023-06-31</Td>
-            <Td><Button as="a" href="/">Lend Your USDC</Button></Td>
-          </Tr>
-          <Tr>
-          </Tr>
-        </Tbody>
-      </Table>
-    </TableContainer>
-    <Center p="2">
-        <IDKitWidget
-          action=""
-          signal="my_signal"
-          onSuccess={onSuccess}
-          handleVerify={handleProof}
-          app_id={app_id_dev}
-          theme="light"
-          // walletConnectProjectId="get_this_from_walletconnect_portal"
-        >
-          {({ open }) => <Button onClick={open}>World ID</Button>}
-        </IDKitWidget>
-      </Center>
-
+      <TableContainer>
+        <Table variant="simple">
+          <Thead>
+            <Tr>
+              <Th>Image</Th>
+              <Th>Asset</Th>
+              <Th>Amount</Th>
+              <Th>Collateral</Th>
+              <Th>APY</Th>
+              <Th>DueDate</Th>
+              <Th>Lend</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            <Tr>
+              <Td>
+                <Image
+                  src="./usd-coin-usdc-logo.png"
+                  boxSize="50px"
+                  alt="Dan Abramov"
+                />
+              </Td>
+              <Td>USDC</Td>
+              <Td>72.85</Td>
+              <Td>75.4%</Td>
+              <Td>20%</Td>
+              <Td>2023-06-31</Td>
+              <Td>
+                <Button as="a" href="/">
+                  Lend Your USDC
+                </Button>
+              </Td>
+            </Tr>
+            <Tr>
+              <Td>
+                <Image
+                  src="./usd-coin-usdc-logo.png"
+                  boxSize="50px"
+                  alt="Dan Abramov"
+                />
+              </Td>
+              <Td>USDC</Td>
+              <Td>72.85</Td>
+              <Td>75.4%</Td>
+              <Td>20%</Td>
+              <Td>2023-06-31</Td>
+              <Td>
+                <Button as="a" href="/">
+                  Lend Your USDC
+                </Button>
+              </Td>
+            </Tr>
+            <Tr></Tr>
+          </Tbody>
+        </Table>
+      </TableContainer>
     </div>
   );
 };
